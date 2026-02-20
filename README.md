@@ -2,6 +2,10 @@
 
 Schedule a Python function to run periodically using Resonate's high-level `schedule()` API.
 
+## What problem does this solve?
+
+Running a function on a cron schedule sounds simple — but in practice, what happens when the worker crashes mid-execution? Traditional cron jobs offer no crash recovery: the job just doesn't run (or runs again from scratch on the next tick). Resonate makes scheduled executions durable. Each cron tick fires a new durable promise. If the worker crashes while processing it, Resonate retries automatically. No lost ticks, no manual recovery logic.
+
 ## Overview
 
 This example shows how to use Resonate's `schedule()` method to register a function as a periodic job using a cron expression. The Resonate server triggers the function automatically, and a worker processes each execution durably.
@@ -80,3 +84,9 @@ The Resonate server fires a new durable promise on each cron tick. The worker pi
 | `0 9 * * *` | Daily at 9am |
 | `0 9 * * 1-5` | Weekdays at 9am |
 | `*/30 * * * *` | Every 30 minutes |
+
+## Learn More
+
+- [Resonate Documentation](https://docs.resonatehq.io)
+- [Schedules API](https://docs.resonatehq.io/concepts/schedules)
+- [Python SDK Guide](https://docs.resonatehq.io/develop/python)
