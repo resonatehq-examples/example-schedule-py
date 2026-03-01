@@ -90,7 +90,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "resonate-sdk", specifier = ">=0.6.7" }]
+requires-dist = [{ name = "resonate-sdk", editable = "../resonate-sdk-py" }]
 
 [[package]]
 name = "idna"
@@ -149,15 +149,30 @@ wheels = [
 [[package]]
 name = "resonate-sdk"
 version = "0.6.7"
-source = { registry = "https://pypi.org/simple" }
+source = { editable = "../resonate-sdk-py" }
 dependencies = [
     { name = "croniter" },
     { name = "jsonpickle" },
     { name = "requests" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c5/86/1d162fc3ae01d728ff5d1344c8ee7a5be2d0c6291ff745889a57be642d67/resonate_sdk-0.6.7.tar.gz", hash = "sha256:c122759f61cebdf4f3f19347ab81745098f3ab69024e23676c64822015f31dbc", size = 170651, upload-time = "2025-10-14T20:30:38.431Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/7e/ef/a1ef3cbc0769b313768bb83e73ebf0f6b6b06395eac397d7f1134658ea85/resonate_sdk-0.6.7-py3-none-any.whl", hash = "sha256:67a893c0c2132c6a8a553c6cb47308f7a2112d7313f1e8fad894df8d27a5656d", size = 73711, upload-time = "2025-10-14T20:30:35.695Z" },
+
+[package.metadata]
+requires-dist = [
+    { name = "croniter", specifier = ">=6.0.0,<7" },
+    { name = "jsonpickle", specifier = ">=4,<5" },
+    { name = "requests", specifier = ">=2,<3" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "docutils", specifier = ">=0.21.2" },
+    { name = "pydoctor", specifier = ">=24.11.2" },
+    { name = "pyright", specifier = ">=1.1.396" },
+    { name = "pytest", specifier = ">=8.3.5" },
+    { name = "pytest-cov", specifier = ">=6.1.1" },
+    { name = "ruff", specifier = ">=0.11.0" },
+    { name = "tabulate", specifier = ">=0.9.0" },
+    { name = "types-requests", specifier = ">=2.32.0.20250306" },
 ]
 
 [[package]]
