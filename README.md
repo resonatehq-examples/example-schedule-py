@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="./assets/banner.png" alt="Schedule — Resonate example" />
+</p>
+
 # Scheduled Function | Resonate Example
 
 Schedule a Python function to run periodically using Resonate's high-level `schedule()` API.
