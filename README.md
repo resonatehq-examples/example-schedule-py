@@ -1,3 +1,11 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./assets/banner-dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="./assets/banner-light.png">
+    <img alt="Schedule — Resonate example" src="./assets/banner-dark.png">
+  </picture>
+</p>
+
 # Scheduled Function | Resonate Example
 
 Schedule a Python function to run periodically using Resonate's high-level `schedule()` API.
