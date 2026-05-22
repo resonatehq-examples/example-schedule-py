@@ -7,7 +7,7 @@ from threading import Event
 from resonate import Resonate
 from report import generate_report
 
-resonate = Resonate(url="http://localhost:8001")
+resonate = Resonate.remote()
 resonate.register(generate_report)
 
 stop_event = Event()
