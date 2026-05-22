@@ -8,7 +8,7 @@
 
 # Scheduled Function | Resonate Example
 
-Schedule a Python function to run periodically using Resonate's high-level `schedule()` API.
+Schedule a Python function to run periodically using Resonate's `schedules.create()` API.
 
 ## What problem does this solve?
 
@@ -16,18 +16,25 @@ Running a function on a cron schedule sounds simple — but in practice, what ha
 
 ## Overview
 
-This example shows how to use Resonate's `schedule()` method to register a function as a periodic job using a cron expression. The Resonate server triggers the function automatically, and a worker processes each execution durably.
+This example shows how to use Resonate's `schedules.create()` API to register a function as a periodic job using a cron expression. The Resonate server triggers the function automatically, and a worker processes each execution durably.
 
 ```python
 # Register the function
 resonate.register(generate_report)
 
 # Schedule it to run every minute
-resonate.schedule(
-    "daily_report",   # schedule ID
-    generate_report,  # function to schedule
-    "* * * * *",      # cron expression
-    user_id=123,      # arguments
+resonate.schedules.create(
+    id="daily_report",
+    cron="* * * * *",
+    promise_id="daily_report.{{.timestamp}}",  # one promise per tick
+    promise_timeout=60_000,                     # 60s in ms
+    promise_data=json.dumps({
+        "func": "generate_report",
+        "args": [123],
+        "kwargs": {},
+        "version": 1,
+    }),
+    promise_tags={"resonate:invoke": "poll://any@default"},
 )
 ```
 
