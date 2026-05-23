@@ -6,6 +6,12 @@
   </picture>
 </p>
 
+<p align="center">
+  <a href="https://resonatehq.github.io/examples-ci/">
+    <img src="https://img.shields.io/endpoint?url=https://resonatehq.github.io/examples-ci/status/example-schedule-py.json" alt="examples-ci status">
+  </a>
+</p>
+
 # Scheduled Function | Resonate Example
 
 Schedule a Python function to run periodically using Resonate's `schedules.create()` API.
