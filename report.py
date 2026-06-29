@@ -1,9 +1,14 @@
+from __future__ import annotations
+
 from datetime import datetime
-from resonate import Context
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from resonate.context import Context
 
 
-def generate_report(ctx: Context, user_id: int) -> str:
+async def generate_report(ctx: Context, user_id: int) -> str:
     timestamp = datetime.utcnow().isoformat()
     report = f"[{timestamp}] Report for user {user_id}"
-    print(report)
+    print(report, flush=True)
     return report
