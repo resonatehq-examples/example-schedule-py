@@ -5,5 +5,5 @@ description = "Periodic function scheduling with Resonate's Python SDK"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "resonate-sdk>=0.6.7",
+    "resonate-sdk>=0.7.0",
 ]

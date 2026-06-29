@@ -2,36 +2,39 @@
 Run this script once to create the schedule.
 The Resonate server will trigger `generate_report` according to the cron expression.
 """
-import json
-from resonate import Resonate
-from resonate.errors.errors import ResonateStoreError
+from __future__ import annotations
+
+import asyncio
+import os
+
+from resonate.error import ServerError
+from resonate.resonate import Resonate
+
 from report import generate_report
 
-resonate = Resonate.remote()
-resonate.register(generate_report)
 
-# Function-call payload the worker will receive when the cron fires.
-# Format matches what `resonate.options(...).rpc(...)` produces internally.
-promise_data = json.dumps({
-    "func": "generate_report",
-    "args": [123],          # user_id
-    "kwargs": {},
-    "version": 1,
-})
+async def main() -> None:
+    r = Resonate(url=os.environ.get("RESONATE_URL", "http://localhost:8001"))
+    r.register(generate_report)
 
-try:
-    # Schedule generate_report to run every minute
-    resonate.schedules.create(
-        id="daily_report",
-        cron="* * * * *",                       # every minute (change to "0 9 * * *" for daily at 9am)
-        promise_id="daily_report.{{.timestamp}}",  # unique per cron tick
-        promise_timeout=60_000,                  # 60s in ms
-        promise_data=promise_data,
-        promise_tags={"resonate:invoke": "poll://any@default"},
-    )
-    print("Schedule created. Start the worker to process executions.")
-except ResonateStoreError as e:
-    if e.code == 100.40901:
-        print("Schedule already exists. Start the worker to process executions.")
-    else:
-        raise
+    try:
+        # Schedule generate_report to run every minute
+        await r.schedule(
+            id="daily_report",
+            cron="* * * * *",          # every minute (change to "0 9 * * *" for daily at 9am)
+            func_name="generate_report",
+            args=(123,),               # user_id
+            kwargs={},
+        )
+        print("Schedule created. Start the worker to process executions.")
+    except ServerError as e:
+        if e.code == 409:
+            print("Schedule already exists. Start the worker to process executions.")
+        else:
+            raise
+    finally:
+        await r.stop()
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

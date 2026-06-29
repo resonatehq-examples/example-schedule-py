@@ -2,23 +2,23 @@
 Run this script to start processing scheduled executions.
 The worker polls the Resonate server for tasks created by the scheduler.
 """
-import signal
-from threading import Event
-from resonate import Resonate
+from __future__ import annotations
+
+import asyncio
+import os
+
+from resonate.resonate import Resonate
+
 from report import generate_report
 
-resonate = Resonate.remote()
-resonate.register(generate_report)
 
-stop_event = Event()
+async def main() -> None:
+    r = Resonate(url=os.environ.get("RESONATE_URL", "http://localhost:8001"))
+    r.register(generate_report)
 
-def shutdown(sig, frame):
-    resonate.stop()
-    stop_event.set()
+    print("Worker started. Waiting for scheduled executions...", flush=True)
+    await asyncio.Event().wait()
 
-signal.signal(signal.SIGINT, shutdown)
-signal.signal(signal.SIGTERM, shutdown)
 
-print("Worker started. Waiting for scheduled executions...")
-resonate.start()
-stop_event.wait()
+if __name__ == "__main__":
+    asyncio.run(main())

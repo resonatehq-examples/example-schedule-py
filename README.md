@@ -22,26 +22,29 @@ Running a function on a cron schedule sounds simple — but in practice, what ha
 
 ## Overview
 
-This example shows how to use Resonate's `schedules.create()` API to register a function as a periodic job using a cron expression. The Resonate server triggers the function automatically, and a worker processes each execution durably.
+This example shows how to use Resonate's `r.schedule()` API to register a function as a periodic job using a cron expression. The Resonate server triggers the function automatically, and a worker processes each execution durably.
 
 ```python
-# Register the function
-resonate.register(generate_report)
+import asyncio
+import os
+from resonate.resonate import Resonate
+from report import generate_report
 
-# Schedule it to run every minute
-resonate.schedules.create(
-    id="daily_report",
-    cron="* * * * *",
-    promise_id="daily_report.{{.timestamp}}",  # one promise per tick
-    promise_timeout=60_000,                     # 60s in ms
-    promise_data=json.dumps({
-        "func": "generate_report",
-        "args": [123],
-        "kwargs": {},
-        "version": 1,
-    }),
-    promise_tags={"resonate:invoke": "poll://any@default"},
-)
+async def main():
+    r = Resonate(url=os.environ.get("RESONATE_URL", "http://localhost:8001"))
+    r.register(generate_report)
+
+    # Schedule generate_report to run every minute
+    await r.schedule(
+        id="daily_report",
+        cron="* * * * *",
+        func_name="generate_report",
+        args=(123,),   # user_id
+    )
+    print("Schedule created. Start the worker to process executions.")
+    await r.stop()
+
+asyncio.run(main())
 ```
 
 ## Prerequisites
