@@ -17,6 +17,11 @@ async def main() -> None:
     r = Resonate(url=os.environ.get("RESONATE_URL", "http://localhost:8001"))
     r.register(generate_report)
 
+    # Yield to the event loop so the SDK's internal network start task
+    # (queued via asyncio.create_task in Resonate.__init__) has a chance
+    # to run before the first send() call checks the running flag.
+    await asyncio.sleep(0)
+
     try:
         # Schedule generate_report to run every minute
         await r.schedule(
