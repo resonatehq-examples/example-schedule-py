@@ -39,15 +39,18 @@ async def main():
     # released).
     await asyncio.sleep(0)
 
-    # Schedule generate_report to run every minute
-    await r.schedule(
-        id="daily_report",
-        cron="* * * * *",
-        func_name="generate_report",
-        args=(123,),   # user_id
-    )
-    print("Schedule created. Start the worker to process executions.")
-    await r.stop()
+    try:
+        # Schedule generate_report to run every minute.
+        # Re-running this script is a no-op once the schedule exists.
+        await r.schedule(
+            id="daily_report",
+            cron="* * * * *",
+            func_name="generate_report",
+            args=(123,),   # user_id
+        )
+        print("Schedule created. Start the worker to process executions.")
+    finally:
+        await r.stop()
 
 asyncio.run(main())
 ```
