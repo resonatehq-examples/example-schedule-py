@@ -14,7 +14,7 @@
 
 # Scheduled Function | Resonate Example
 
-Schedule a Python function to run periodically using Resonate's `schedules.create()` API.
+Schedule a Python function to run periodically using Resonate's `schedule()` API.
 
 ## What problem does this solve?
 
@@ -33,6 +33,11 @@ from report import generate_report
 async def main():
     r = Resonate(url=os.environ.get("RESONATE_URL", "http://localhost:8001"))
     r.register(generate_report)
+
+    # Yield to the event loop once so the SDK's background network task
+    # starts before the first call (needed until resonate-sdk-py#444 is
+    # released).
+    await asyncio.sleep(0)
 
     # Schedule generate_report to run every minute
     await r.schedule(
@@ -105,12 +110,14 @@ The Resonate server fires a new durable promise on each cron tick. The worker pi
 | Expression | Meaning |
 |------------|---------|
 | `* * * * *` | Every minute |
-| `0 9 * * *` | Daily at 9am |
-| `0 9 * * 1-5` | Weekdays at 9am |
+| `0 9 * * *` | Daily at 9am UTC |
+| `0 9 * * MON-FRI` | Weekdays at 9am UTC |
 | `*/30 * * * *` | Every 30 minutes |
+
+Cron expressions are evaluated in **UTC**, and the day-of-week field uses Quartz numbering (`1` = Sunday) — prefer day names like `MON-FRI`. See the [Schedules & cron reference](https://docs.resonatehq.io/reference/schedules) for the full expression format.
 
 ## Learn More
 
 - [Resonate Documentation](https://docs.resonatehq.io)
-- [Schedules API](https://docs.resonatehq.io/concepts/schedules)
+- [Schedules API](https://docs.resonatehq.io/reference/schedules)
 - [Python SDK Guide](https://docs.resonatehq.io/develop/python)
