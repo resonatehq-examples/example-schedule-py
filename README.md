@@ -14,7 +14,7 @@
 
 # Scheduled Function | Resonate Example
 
-Schedule a Python function to run periodically using Resonate's `schedules.create()` API.
+Schedule a Python function to run periodically using Resonate's `schedule()` API.
 
 ## What problem does this solve?
 
@@ -34,24 +34,33 @@ async def main():
     r = Resonate(url=os.environ.get("RESONATE_URL", "http://localhost:8001"))
     r.register(generate_report)
 
-    # Schedule generate_report to run every minute
-    await r.schedule(
-        id="daily_report",
-        cron="* * * * *",
-        func_name="generate_report",
-        args=(123,),   # user_id
-    )
-    print("Schedule created. Start the worker to process executions.")
-    await r.stop()
+    # Yield to the event loop once so the SDK's background network task
+    # starts before the first call (needed until
+    # resonatehq/resonate-sdk-py#443 is fixed).
+    await asyncio.sleep(0)
 
-asyncio.run(main())
+    try:
+        # Schedule generate_report to run every minute.
+        # Re-running this script is a no-op once the schedule exists.
+        await r.schedule(
+            id="daily_report",
+            cron="* * * * *",
+            func_name="generate_report",
+            args=(123,),   # user_id
+        )
+        print("Schedule registered. Start the worker to process executions.")
+    finally:
+        await r.stop()
+
+if __name__ == "__main__":
+    asyncio.run(main())
 ```
 
 ## Prerequisites
 
 - Python 3.12+
 - [uv](https://docs.astral.sh/uv/) (recommended) or pip
-- [Resonate server](https://docs.resonatehq.io) running locally
+- [Resonate server](https://docs.resonatehq.io) running locally (the scripts retry until the server is reachable — if `schedule.py` seems to hang, start `resonate dev`)
 
 ## Setup
 
@@ -86,8 +95,8 @@ uv run python worker.py
 Every minute, you'll see output like:
 
 ```
-[2026-02-18T09:00:00] Report for user 123
-[2026-02-18T09:01:00] Report for user 123
+[2026-02-18T09:00:00+00:00] Report for user 123
+[2026-02-18T09:01:00+00:00] Report for user 123
 ```
 
 ## How It Works
@@ -105,12 +114,14 @@ The Resonate server fires a new durable promise on each cron tick. The worker pi
 | Expression | Meaning |
 |------------|---------|
 | `* * * * *` | Every minute |
-| `0 9 * * *` | Daily at 9am |
-| `0 9 * * 1-5` | Weekdays at 9am |
+| `0 9 * * *` | Daily at 9am UTC |
+| `0 9 * * MON-FRI` | Weekdays at 9am UTC |
 | `*/30 * * * *` | Every 30 minutes |
+
+Cron expressions are evaluated in **UTC**, and the day-of-week field uses Quartz numbering (`1` = Sunday) — prefer day names like `MON-FRI`. See the [Schedules & cron reference](https://docs.resonatehq.io/reference/schedules) for the full expression format.
 
 ## Learn More
 
 - [Resonate Documentation](https://docs.resonatehq.io)
-- [Schedules API](https://docs.resonatehq.io/concepts/schedules)
+- [Schedules API](https://docs.resonatehq.io/reference/schedules)
 - [Python SDK Guide](https://docs.resonatehq.io/develop/python)
