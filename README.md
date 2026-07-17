@@ -35,8 +35,8 @@ async def main():
     r.register(generate_report)
 
     # Yield to the event loop once so the SDK's background network task
-    # starts before the first call (needed until resonate-sdk-py#444 is
-    # released).
+    # starts before the first call (needed until
+    # resonatehq/resonate-sdk-py#443 is fixed).
     await asyncio.sleep(0)
 
     try:
@@ -48,18 +48,19 @@ async def main():
             func_name="generate_report",
             args=(123,),   # user_id
         )
-        print("Schedule created. Start the worker to process executions.")
+        print("Schedule registered. Start the worker to process executions.")
     finally:
         await r.stop()
 
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())
 ```
 
 ## Prerequisites
 
 - Python 3.12+
 - [uv](https://docs.astral.sh/uv/) (recommended) or pip
-- [Resonate server](https://docs.resonatehq.io) running locally
+- [Resonate server](https://docs.resonatehq.io) running locally (the scripts retry until the server is reachable — if `schedule.py` seems to hang, start `resonate dev`)
 
 ## Setup
 
@@ -94,8 +95,8 @@ uv run python worker.py
 Every minute, you'll see output like:
 
 ```
-[2026-02-18T09:00:00] Report for user 123
-[2026-02-18T09:01:00] Report for user 123
+[2026-02-18T09:00:00+00:00] Report for user 123
+[2026-02-18T09:01:00+00:00] Report for user 123
 ```
 
 ## How It Works

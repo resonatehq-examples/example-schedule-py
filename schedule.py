@@ -19,7 +19,7 @@ async def main() -> None:
     # Yield to the event loop once so the SDK's background network task starts
     # before the first client call -- on resonate-sdk 0.7.x the first awaited
     # call otherwise fails with "http error: network has been stopped".
-    # Drop this once resonatehq/resonate-sdk-py#444 is released.
+    # Drop this once resonatehq/resonate-sdk-py#443 is fixed.
     await asyncio.sleep(0)
 
     try:
@@ -31,7 +31,7 @@ async def main() -> None:
             func_name="generate_report",
             args=(123,),               # user_id
         )
-        print("Schedule created. Start the worker to process executions.")
+        print("Schedule registered. Start the worker to process executions.")
     finally:
         await r.stop()
 
